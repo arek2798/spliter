@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1578864986 source:c:\users\arekk\onedrive\desktop\pop projekt\spliter\main.cpp
+	<iostream>
+	<fstream>
+	<sstream>
+	<cstring>
+

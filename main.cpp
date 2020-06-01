@@ -9,7 +9,7 @@ using namespace std;
 #define bits_17 0xffff
 #define bits_8 0xff
 
-void tworzenie_tablicy_crc(unsigned int tablica_crc[256]) ///funkcja tworzy tablice lookup przyspieszajaca liczenie crc(liczenie po bajcie a nie po bicie)
+void tworzenie_tablicy_crc(unsigned int tablica_crc[256])
 {
     unsigned int liczba = 0;
     for(int i=0; i<256; i++) {
@@ -20,7 +20,7 @@ void tworzenie_tablicy_crc(unsigned int tablica_crc[256]) ///funkcja tworzy tabl
 
 unsigned short int oblicz_crc(unsigned int tablica_crc[256], fstream &plik, bool sprawdzenie, unsigned short int crc_obl = 0)
 {
-    unsigned int reszta = 0xffffffff;               ///funkcja liczy crc pliku na podstawie tablicy
+    unsigned int reszta = 0xffffffff;           
     uint8_t wartosc;
     unsigned int dane=0;
     char znak;
@@ -31,7 +31,7 @@ unsigned short int oblicz_crc(unsigned int tablica_crc[256], fstream &plik, bool
     plik.seekg(0);
 
     plik.get(znak);
-    dane = static_cast<uint8_t>(znak);      ///zaladowanie pierwszych znakow do danych
+    dane = static_cast<uint8_t>(znak);    
     plik.get(znak);
     dane <<=8;
     dane += static_cast<uint8_t>(znak);
@@ -41,14 +41,14 @@ unsigned short int oblicz_crc(unsigned int tablica_crc[256], fstream &plik, bool
 
     reszta = dane >> 15;
 
-    while(plik.get(znak)) {                 ///liczenie crc tak dlugo az dojdziemy do konca pliku
-        dane <<=8;                          ///ladowanie danych po 8 bitow
+    while(plik.get(znak)) {                
+        dane <<=8;                       
         dane += static_cast<uint8_t>(znak);
         wartosc = reszta >> 9;
         reszta = ((reszta << 8) | (dane >> 16)) & bits_17;
         reszta = reszta^tablica_crc[wartosc];
     }
-    if(sprawdzenie) {                       ///sprawdzanie czy obliczone crc jest poprawne(zamiast 16 zer na koncu danych ustawiany jest obliczony crc)
+    if(sprawdzenie) {                    
         while(i++ < 4) {
             if(i < 2) {
                 dane <<=8;
@@ -110,7 +110,7 @@ void dzielenie_pliku(int roz_plikow, char nazwa_pliku[], unsigned int tablica_cr
         nr_nas = i+1;
         nazwa = nazwa_plikow;
         nazwa_nastepnego = nazwa_plikow;
-        stringstream tekst, tekst2;         ///ustawienie odpowiedniej nazwy plikow(rowniez nastepnego)
+        stringstream tekst, tekst2;        
         if(i<10) {
             tekst << i;
             tekst >> oznaczenie;
@@ -141,7 +141,7 @@ void dzielenie_pliku(int roz_plikow, char nazwa_pliku[], unsigned int tablica_cr
             tekst2 >> oznaczenie;
             nazwa_nastepnego += oznaczenie + ".dat";
         }
-        if(i == ile_plikow) nazwa_nastepnego = "0";             ///dodanie naglowka do pliku
+        if(i == ile_plikow) nazwa_nastepnego = "0";            
         strcpy(plik_nazwa, nazwa.c_str());
         plik_podz.open(plik_nazwa, ios::out | ios::binary);
         plik_kopia.open("kopia.txt", ios::out | ios::trunc);
@@ -151,14 +151,14 @@ void dzielenie_pliku(int roz_plikow, char nazwa_pliku[], unsigned int tablica_cr
         plik_podz << crc << " ";
         plik_podz << dzielnik << endl;
         int l_kopi = 0;
-        while (l_kopi < roz_plikow && plik.get(znak)) {         ///wczytanie tylu znakow do pliku aby osiagnac rozmiar podany w konsoli
+        while (l_kopi < roz_plikow && plik.get(znak)) {        
             plik_podz << znak;
             plik_kopia << znak;
             l_kopi++;
         }
         plik_kopia.close();
         plik_kopia.open("kopia.txt", ios::in);
-        unsigned short int crc_podzielonego = oblicz_crc(tablica_crc, plik_kopia, false); ///liczenie crc juz podzielonego pliku i dodanie do stopki
+        unsigned short int crc_podzielonego = oblicz_crc(tablica_crc, plik_kopia, false);
         plik_podz << '\n';
         znak = static_cast<char>(crc_podzielonego >> 8);
         plik_podz << znak;
@@ -178,7 +178,7 @@ void scalanie_pliku(char nazwa_pliku[],  unsigned int tablica_crc[256])
     char nazwa_scalonego[100];
     fstream plik_zapis, plik_spr;
     stringstream naz_plik;
-    naz_plik << nazwa_pliku;                    ///ustawienie nazwy koncowej scalonego pliku na podstawie pierszego pliku do scalenia
+    naz_plik << nazwa_pliku;                    
     getline(naz_plik, naz, '.');
     int j=0;
     while(j < naz.length()-3) {
@@ -196,7 +196,7 @@ void scalanie_pliku(char nazwa_pliku[],  unsigned int tablica_crc[256])
     char nazwa_nas[100];
     int i=1;
     int liczba_wpisanych = 0;
-    unsigned short int crc_obl;                 ///otworzenie kazdego pliku i skopiowanie z niego tresci(bez stopki i naglowka)
+    unsigned short int crc_obl;                 
     do {
         if(i == 1) {
             plik_podz.open(nazwa_pliku, ios::in);
@@ -209,7 +209,7 @@ void scalanie_pliku(char nazwa_pliku[],  unsigned int tablica_crc[256])
         plik_spr.open("plik_spr.txt", ios::out);
         roz_mal = podaj_rozmiar_pliku(plik_podz);
         stringstream tekst, liczba;
-        getline(plik_podz, naglowek);           ///wyodrebnienie z naglowka odpowiednich informacji(rozmiar duzego pliku, nazwa nastepnego itp.)
+        getline(plik_podz, naglowek); 
         ile_wczytac = roz_mal - plik_podz.tellg() - 4;
         tekst << naglowek;
         getline(tekst, rozmiar_duzego, ' ');
@@ -227,7 +227,7 @@ void scalanie_pliku(char nazwa_pliku[],  unsigned int tablica_crc[256])
         liczba >> crc_duz;
         getline(tekst, dzielnik_crc, ' ');
         liczba_wpisanych = 0;
-        while(liczba_wpisanych <= ile_wczytac && plik_podz.get(znak)) {     ///kopiowanie znakow
+        while(liczba_wpisanych <= ile_wczytac && plik_podz.get(znak)) {    
             plik_zapis << znak;
             plik_spr << znak;
             liczba_wpisanych++;
@@ -236,7 +236,7 @@ void scalanie_pliku(char nazwa_pliku[],  unsigned int tablica_crc[256])
         plik_podz.get(znak);
         crc_mal = (static_cast<int>(znak)) << 8;
         plik_podz.get(znak);
-        crc_mal += static_cast<int>(znak);          ///policzenie crc mniejszego pliku i sprawdzenie czy zgadza on sie z podanym
+        crc_mal += static_cast<int>(znak);        
         plik_podz.close();
         plik_spr.close();
         plik_spr.open("plik_spr.txt", ios::in);
@@ -250,7 +250,7 @@ void scalanie_pliku(char nazwa_pliku[],  unsigned int tablica_crc[256])
         remove("plik_spr.txt");
     } while (i++ < l_plikow);
 
-    plik_zapis.close();                             ///policzenie crc duzego pliku i sprawdzenie czy jest on poprawny
+    plik_zapis.close();                            
     plik_zapis.open(nazwa_scalonego);
     crc_obl = oblicz_crc(tablica_crc, plik_zapis, true, crc_duz);
     plik_zapis.close();
